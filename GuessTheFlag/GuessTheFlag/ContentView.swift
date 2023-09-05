@@ -24,6 +24,18 @@ struct ContentView: View {
     private var maxQuestionCount: Int = 8
     @State private var questionCount: Int = 0
     
+    // This is done as a custom modifier.
+    struct FlagImage: View {
+        var country: String
+        
+        var body: some View {
+            Image(country)
+                .renderingMode(.original)
+                .clipShape(Capsule())
+                .shadow(radius: 5)
+        }
+    }
+    
     var body: some View {
         ZStack {
 //            Color.blue
@@ -55,10 +67,11 @@ struct ContentView: View {
                         Button {
                             flagTapped(number)
                         } label: {
-                            Image(countries[number])
-                                .renderingMode(.original)
-                                .clipShape(Capsule())
-                                .shadow(radius: 5)
+//                            Image(countries[number])
+//                                .renderingMode(.original)
+//                                .clipShape(Capsule())
+//                                .shadow(radius: 5)
+                            FlagImage(country: countries[number])
                         }
                     }
                 }
