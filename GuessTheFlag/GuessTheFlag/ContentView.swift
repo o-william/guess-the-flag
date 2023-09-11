@@ -24,6 +24,9 @@ struct ContentView: View {
     private var maxQuestionCount: Int = 8
     @State private var questionCount: Int = 0
     
+    // VARIABLES FOR THE TRANSITION
+    @State private var opacity: Double = 1.0
+    
     // This is done as a custom modifier.
     struct FlagImage: View {
         var country: String
@@ -110,6 +113,22 @@ struct ContentView: View {
         } message: {
             Text(alertMessage)
         }
+        
+        
+        Button(action: {
+            print("Button tapped")
+            withAnimation(.easeInOut(duration: 5.0)) {
+                self.opacity = 0.5
+            }
+        }) {
+            Text("Tap me!")
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                .opacity(opacity)
+        }
+        
     }
     
     func flagTapped(_ number: Int) {
