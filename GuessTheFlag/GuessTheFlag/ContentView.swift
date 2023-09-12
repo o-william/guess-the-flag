@@ -25,13 +25,30 @@ struct ContentView: View {
     @State private var questionCount: Int = 0
     
     // VARIABLES FOR THE TRANSITION
-    @State private var opacity: Double = 1.0
+    // @State private var opacity: Double = 1.0
+    @State private var tappedFlag: Int = 1
+    let tappedFlagOpacity = 1.0
+    @State private var untappedFlagOpacity = 1.0
+    @State private var rotationAmount = 0.0
     
-    // This is done as a custom modifier.
+    // This is done as a custom view.
     struct FlagImage: View {
         var country: String
         
         var body: some View {
+            Image(country)
+                .renderingMode(.original)
+                .clipShape(Capsule())
+                .shadow(radius: 5)
+        }
+    }
+    
+    // This is done as a custom modifier, similar to the custom view above.
+    struct FlagImageModifier: ViewModifier {
+        var country: String
+        
+        func body(content: Content) -> some View {
+            // content
             Image(country)
                 .renderingMode(.original)
                 .clipShape(Capsule())
@@ -67,15 +84,28 @@ struct ContentView: View {
                     // .foregroundColor(.white)
                     
                     ForEach(0..<3) { number in
+//                        Button(action: {
+//                            self.tappedFlag = number
+//                            //withAnimation(.easeOut(duration: 0.5)) {
+//                            withAnimation {
+//                                self.opacity = 0.5
+//                            }
+//                            flagTapped(number)
+//                        },
                         Button {
+                            tappedFlag = number
                             flagTapped(number)
-                        } label: {
-//                            Image(countries[number])
-//                                .renderingMode(.original)
-//                                .clipShape(Capsule())
-//                                .shadow(radius: 5)
-                            FlagImage(country: countries[number])
+                            
+                            withAnimation(.interpolatingSpring(stiffness: 5, damping: 3)) {
+                                rotateTappedFlag()
+                                changeOpacity()
+                            }
                         }
+                    label: {
+                        FlagImage(country: countries[number])
+                            .opacity(tappedFlag == number ? tappedFlagOpacity : untappedFlagOpacity)
+                            .rotation3DEffect(tappedFlag == number ? .degrees(rotationAmount) : .degrees(0.0), axis: (x: 0, y: 1, z: 0))
+                    }
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -115,23 +145,36 @@ struct ContentView: View {
         }
         
         
-        Button(action: {
-            print("Button tapped")
-            withAnimation(.easeInOut(duration: 5.0)) {
-                self.opacity = 0.5
-            }
-        }) {
-            Text("Tap me!")
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                .opacity(opacity)
-        }
+//        Button(action: {
+//            print("Button tapped")
+//            withAnimation(.easeInOut(duration: 5.0)) {
+//                self.opacity = 0.5
+//            }
+//        }) {
+//            Text("Tap me!")
+//                .padding()
+//                .background(Color.blue)
+//                .foregroundColor(.white)
+//                .cornerRadius(10)
+//                .opacity(opacity)
+//        }
         
     }
     
+    func rotateTappedFlag() {
+        rotationAmount += 360
+    }
+    
+    func changeOpacity() {
+        untappedFlagOpacity = 0.25
+    }
+    
     func flagTapped(_ number: Int) {
+        // change opacity of untapped flags
+        // untappedFlagOpacity = 0.25
+        // change the rotation amount
+        // rotationAmount += 360
+        
         if questionCount == maxQuestionCount {
             // dispay another button to reset the game -> start from the beginning.
             showingReset = true
@@ -154,6 +197,12 @@ struct ContentView: View {
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        // opacity = 1.0
+        
+        // reset opacity of untapped flags
+        untappedFlagOpacity = 1.0
+        // reset rotation amount
+        rotationAmount = 0.0
     }
     
     func resetGame() {
